@@ -2,15 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Advanced Happy Birthday Animation</title>
+<title>Ultimate Happy Birthday Animation</title>
 
 <style>
+
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background: radial-gradient(circle at top, #ff9a9e, #fad0c4);
     overflow: hidden;
     height: 100vh;
+    background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+    background-size: 800% 800%;
+    animation: gradientMove 15s ease infinite;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .container {
@@ -19,50 +28,16 @@ body {
     top: 50%;
     transform: translateY(-50%);
     text-align: center;
+    color: white;
 }
 
 h1 {
-    font-size: 60px;
-    color: white;
-    letter-spacing: 3px;
-    text-shadow: 0 0 20px rgba(0,0,0,0.5);
-    animation: slideDown 2s ease-out, glow 2s infinite alternate;
+    font-size: 70px;
+    letter-spacing: 4px;
+    animation: zoomText 2s ease-out, glow 2s infinite alternate;
 }
 
-@keyframes slideDown {
-    from {
-        transform: translateY(-200px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes glow {
-    from { text-shadow: 0 0 10px #fff; }
-    to { text-shadow: 0 0 30px #ff0; }
-}
-
-.photo-frame {
-    width: 220px;
-    height: 220px;
-    margin: 20px auto;
-    border-radius: 50%;
-    border: 8px solid white;
-    overflow: hidden;
-    animation: zoomIn 2s ease;
-    box-shadow: 0 0 25px rgba(0,0,0,0.4);
-}
-
-.photo-frame img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-@keyframes zoomIn {
+@keyframes zoomText {
     from {
         transform: scale(0);
         opacity: 0;
@@ -73,26 +48,47 @@ h1 {
     }
 }
 
+@keyframes glow {
+    from { text-shadow: 0 0 10px #fff; }
+    to { text-shadow: 0 0 40px yellow; }
+}
+
+.photo-frame {
+    width: 230px;
+    height: 230px;
+    margin: 20px auto;
+    border-radius: 50%;
+    border: 8px solid white;
+    overflow: hidden;
+    animation: rotateFrame 10s linear infinite;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
+.photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@keyframes rotateFrame {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .cake {
-    font-size: 120px;
+    font-size: 130px;
     animation: bounce 2s infinite;
 }
 
 @keyframes bounce {
     0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+    50% { transform: translateY(-25px); }
 }
 
 .message {
-    font-size: 24px;
-    color: white;
+    font-size: 26px;
     margin-top: 15px;
-    animation: fadeIn 4s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    min-height: 40px;
 }
 
 .balloon {
@@ -103,47 +99,50 @@ h1 {
 }
 
 @keyframes floatUp {
-    from {
-        transform: translateY(0);
-    }
-    to {
-        transform: translateY(-120vh);
-    }
+    from { transform: translateY(0); }
+    to { transform: translateY(-120vh); }
 }
 
 .confetti {
     position: absolute;
     width: 10px;
     height: 10px;
-    background: red;
     animation: fall linear infinite;
 }
 
 @keyframes fall {
+    from { transform: translateY(-100px) rotate(0deg); }
+    to { transform: translateY(100vh) rotate(360deg); }
+}
+
+.firework {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: explode 1.2s ease-out forwards;
+}
+
+@keyframes explode {
     from {
-        transform: translateY(-100px) rotate(0deg);
+        transform: scale(0);
+        opacity: 1;
     }
     to {
-        transform: translateY(100vh) rotate(360deg);
+        transform: scale(8);
+        opacity: 0;
     }
 }
 
-.typing {
-    overflow: hidden;
-    border-right: 3px solid white;
-    white-space: nowrap;
-    margin: 0 auto;
-    width: 0;
-    animation: typing 4s steps(40, end) forwards, blink 0.7s infinite;
-}
-
-@keyframes typing {
-    from { width: 0 }
-    to { width: 100% }
-}
-
-@keyframes blink {
-    50% { border-color: transparent }
+.music-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
 }
 
 </style>
@@ -161,16 +160,39 @@ h1 {
 
 <div class="cake">🎂</div>
 
-<div class="message typing">
-Wishing you happiness, success, and lots of joy on your special day!
-</div>
+<div class="message" id="quote"></div>
 
 </div>
+
+<button class="music-btn" onclick="toggleMusic()">🎵 Play Music</button>
+
+<audio id="music" loop>
+<source src="https://www.orangefreesounds.com/wp-content/uploads/2016/06/Happy-birthday-song.mp3" type="audio/mpeg">
+</audio>
 
 <script>
 
+// Quotes rotation
+let quotes = [
+"Wishing you a day filled with happiness and a year filled with joy! 🎉",
+"May your birthday be as special as you are! 🎂",
+"Another year older, wiser, and more amazing! 🌟",
+"Hope your birthday is full of love, laughter, and cake! 🎁",
+"Celebrate big, smile more, and enjoy every moment! 🎈"
+];
+
+let index = 0;
+
+function showQuote() {
+    document.getElementById("quote").innerText = quotes[index];
+    index = (index + 1) % quotes.length;
+}
+
+setInterval(showQuote, 3000);
+showQuote();
+
 // Confetti
-for (let i = 0; i < 60; i++) {
+for (let i = 0; i < 70; i++) {
     let confetti = document.createElement("div");
     confetti.classList.add("confetti");
     confetti.style.left = Math.random() * 100 + "vw";
@@ -182,16 +204,41 @@ for (let i = 0; i < 60; i++) {
 }
 
 // Balloons
-let balloons = ["🎈","🎈","🎈","🎈","🎈"];
-
-for (let i = 0; i < balloons.length; i++) {
+for (let i = 0; i < 8; i++) {
     let balloon = document.createElement("div");
     balloon.classList.add("balloon");
-    balloon.innerHTML = balloons[i];
+    balloon.innerHTML = "🎈";
     balloon.style.left = Math.random() * 100 + "vw";
     balloon.style.animationDuration =
         (Math.random() * 5 + 5) + "s";
     document.body.appendChild(balloon);
+}
+
+// Fireworks
+function createFirework() {
+    let firework = document.createElement("div");
+    firework.classList.add("firework");
+    firework.style.left = Math.random() * 100 + "vw";
+    firework.style.top = Math.random() * 60 + "vh";
+    firework.style.backgroundColor =
+        "hsl(" + Math.random() * 360 + ", 100%, 50%)";
+    document.body.appendChild(firework);
+
+    setTimeout(() => {
+        firework.remove();
+    }, 1200);
+}
+
+setInterval(createFirework, 800);
+
+// Music toggle
+function toggleMusic() {
+    let music = document.getElementById("music");
+    if (music.paused) {
+        music.play();
+    } else {
+        music.pause();
+    }
 }
 
 </script>
